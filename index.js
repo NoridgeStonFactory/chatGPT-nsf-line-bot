@@ -4,6 +4,9 @@ import { redisRouter } from "./redis.js";
 
 const app = express();
 
+// 🔽 LINEからのPOSTデータを受け取るために必須！
+app.use(express.json());
+
 app.post("/callback", lineMiddleware, (req, res) => {
   Promise.all(req.body.events.map(eventHandle))
     .then((result) => res.json(result))
@@ -28,9 +31,10 @@ function errorHandle(error, res) {
   }
 }
 
+// Redisのルーターがある場合ここで接続
 app.use("/redis", redisRouter);
 
-// ポート番号は Render が提供する process.env.PORT を使う
+// Render対応ポート設定
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.info(`✅ listening on ${port}`);
